@@ -2,7 +2,10 @@
 
 {% block stylesheet %}
 	<style type="text/css">
-			
+			circle {
+			  stroke: #fff;
+			  stroke-width: 2px;
+			}
 			p {
 				font-family: Helvetica, sans-serif;
 				font-size: 12px;
@@ -76,6 +79,7 @@
 			$('.cau_a').click(function(){
 
 				$("svg").remove();
+				var MaxRange = Math.random() * 1000;
 				var C=  $('.C').val();
 				var R = $('.R').val();
 				var W = $('.W').val();
@@ -83,16 +87,20 @@
 				var alpha = $(".alpha").val();
 				var Umin = $('.U').val();
 
+				var cw = C*W;
+				var backbone = []				
+
 				//Width and height
 				var w = 1110;
 				var h = 660;
 				var padding = 40;
-				
+
 				//Dynamic, random dataset
 				var dataset = {
-					names: [
+					nodes: [
+
 					],
-					edges:[
+					links:[
 						{ source: 0, target: 1 },
 						{ source: 0, target: 2 },
 						{ source: 0, target: 3 },
@@ -108,9 +116,6 @@
 						{ source: 8, target: 9 }
 					],
 					weight:[
-					],
-					degres:[
-
 					]
 				};
 
@@ -119,39 +124,22 @@
 					dataset.weight[i] =1;
 				};
 				dataset.weight[4] = dataset.weight[59] = dataset.weight[69]=10;
-				dataset.weight[6] = dataset.weight[22] = dataset.weight[42]=15;
+				dataset.weight[6] = dataset.weight[22] = dataset.weight[44]=15;
 				dataset.weight[51] = dataset.weight[77] = dataset.weight[64]=5;
-				dataset.weight[31] = dataset.weight[56] = dataset.weight[47]=3;
+				dataset.weight[31] = dataset.weight[56] = dataset.weight[47]=3;	
 
-
-				// Tìm trọng số chuẩn hóa
-				var cw = C*W;
-				var backbone = []
-
-				// TIM MAXCOST
-
-
-				// Xác định node truy cập của node backbone đã xác định
-
-
-				// Cập nhật lại danh sách backbone và node truy cập
-
-
-				// Xây dựng cây kết nối giữa các nút đường trục
-
-				// Thêm liên kết
-
-
-				var numDataPoints = node;					
-				var  MaxRange = 1000;	
-
-				for (var i = 0; i < numDataPoints; i++) {
+				// Xac dinh toa do + Nodes
+				for (var i = 0; i < node; i++) {
 					var newNumber1 = Math.floor(Math.random() * MaxRange);
 					var newNumber2 = Math.floor(Math.random() * MaxRange);
-					dataset.degres.push([newNumber1, newNumber2]);
-					dataset.names.push({name:i});
+					dataset.nodes.push({name:i+1,group:i+1,backbone:false,weight:0,degre:[newNumber1, newNumber2]});
 				}
-
+				// Xac dinh nut Backbone
+				for (var i = 0; i<dataset.nodes.length;i++){
+					if (dataset.weight[i] > cw){
+						dataset.nodes[i].backbone = true;
+					}
+				}
 
 				//Create scale functions
 				var xScale = d3.scaleLinear()
@@ -160,77 +148,100 @@
 				var yScale = d3.scaleLinear()
 									 .domain([0, 1000])
 									 .range([h - padding, padding / 2]);
-				//Define X axis
+				// Xac dinh X axis
 				var xAxis = d3.axisBottom()
 								  .scale(xScale)
 								  .ticks(10);
-				//Define Y axis
+				// Xac dinh Y axis
 				var yAxis = d3.axisLeft()
 								  .scale(yScale)
 								  .ticks(10);
-				//Create SVG element
+
+				// Tao Force
+				var force = d3.forceSimulation(dataset.nodes)
+						  .force("charge", d3.forceManyBody().strength(-30))
+						  .force("link", d3.forceLink(dataset.links))
+						  .force("center", d3.forceCenter((w/2,h/2)));
+
+				var colors = d3.scaleOrdinal(d3.schemeCategory10);
+
+				// Tao SVG
 				var svg = d3.select(".container")
 							.append("svg")
 							.attr("width", w)
 							.attr("height", h);
 
-				//Create circles
-				var allCircles = svg.selectAll("circle")
-				   .data(dataset.degres)
-				   .enter()
-				   .append("circle")
-				   .attr("cx", function(d) {
-				   		return xScale(d[0]);
-				   })
-				   .attr("cy", function(d) {
-				   		return yScale(d[1]);
-				   })
-				   .attr("r", 5)
-				   .attr('fill','#20c997');
+				// Tao Links
+				var links = svg.selectAll("line")
+								.data(dataset.links)
+								.enter()
+								.append("line")
+								.style("stroke", "#ccc")
+								.style("stroke-width", 1);
 
-				svg.selectAll("text")
-				   .data(dataset.degres)
-				   .enter()
-				   .append("text")
-				   .text(function(d,i) {
-				   		return i+1;
-				   })
-				   .attr("x", function(d) {
-				   		return xScale(d[0]);
-				   })
-				   .attr("y", function(d) {
-				   		return yScale(d[1]);
-				   })
-				   .attr("font-family", "sans-serif")
-				   .attr("font-size", "11px")
-				   .attr("fill", "red");
+
+				//Create nodes as circles
+				var nodes = svg.selectAll("circle")
+					.data(dataset.nodes)
+					.enter()
+					.append("circle")
+					.attr("r", 9)
+					.style("fill",function(d){
+						if (d.backbone){
+							return '#ffc107'
+						} else{
+							return "rgb(127, 228, 100)"
+						}
+
+					})
+					.call(d3.drag);
+
+				d3.select(".container").select("svg").selectAll("text")
+					.data(dataset.nodes)
+					.enter()
+					.append("text")
+					.text(function(d) {
+						return d.name;
+					})
+					.attr("x", function(d) {
+						return 1.05*d.degre[0]+padding+4;
+					})
+					.attr("y", function(d){
+						return 620-0.6*d.degre[1]-4;
+					})
+					.attr("font-family", "sans-serif")
+					.attr("font-size", "11px")
+					.attr("fill", "red");
+
+				//Add a simple tooltip
+				nodes.append("title")
+					 .text(function(d) {
+						return d.name;
+					 });
 				
-				//Create X axis
+				//Every time the simulation "ticks", this will be called
+				force.on("tick", function() {
+					links.attr("x1", function(d) { return 1.05*d.source.degre[0]+padding; })
+				        .attr("y1", function(d) { return 620-0.6*d.source.degre[1]; })
+				        .attr("x2", function(d) { return 1.05*d.target.degre[0]+padding; })
+				        .attr("y2", function(d) { return 620-0.6*d.target.degre[1]; });
+
+					nodes.attr("cx", function(d) { return 1.05*d.degre[0]+padding })
+						 .attr("cy", function(d) { return 620-0.6*d.degre[1] });
+		
+				});
+
+				//Tao X axis
 				svg.append("g")
 					.attr("class", "axis")
 					.attr("transform", "translate(0," + (h - padding) + ")")
 					.call(xAxis);
 				
-				//Create Y axis
+				//Tao Y axis
 				svg.append("g")
 					.attr("class", "axis")
 					.attr("transform", "translate(" + padding + ",0)")
 					.call(yAxis);
-				//On radio button change, update styling
-				d3.selectAll("input")
-					.on("click", function() {
-						var threshold = +d3.select(this).node().value;
-						
-						allCircles.attr("fill", "black")
-							.filter(function(d) {
-								return d[0] <= threshold;
-							})
-							.attr("fill", "red");
-					});
-
-
-
-
 
 			});
 		});
