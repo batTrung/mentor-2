@@ -1,9 +1,238 @@
 {% extends "base.html" %}
 
+{% block stylesheet %}
+	<style type="text/css">
+			
+			p {
+				font-family: Helvetica, sans-serif;
+				font-size: 12px;
+			}
+			input[type=radio] {
+				margin-left: 40px;
+			}
+		</style>
+{% endblock stylesheet %}
 {% block title %}
 	Home page
 {% endblock title %}
 
 {% block content %}
-	<h1>Home Page</h1>
+	<br>
+	<h1>Mô phỏng thuật toán <span style="color:#1e85d6">MENTOR II</span> </h1>
+	<br>
+	<form>
+  <div class="form-row">
+    <div class="col">
+    	<label for="">X</label>
+      <input type="text" class="form-control X" value="X=10000" disabled placeholder="X">
+    </div>
+    <div class="col">
+    	<label for="">Số nút</label>
+     	 <input type="text" class="form-control node" value="80" placeholder="Số nút">
+    </div>
+    <div class="col">
+    	<label for="">R</label>
+      <input type="text" class="form-control R" value="0.3" placeholder="R">
+    </div>
+    <div class="col">
+    	<label for="">&alpha;</label>
+      <input type="text" class="form-control alpha" value="0.7" placeholder="&alpha;">
+    </div>
+
+  </div>
+  <br>
+  <div class="form-row">
+    <div class="col">
+    	<label for="">Y</label>
+      <input type="text" class="form-control Y" value="Y=10000" disabled placeholder="Y">
+    </div>
+    <div class="col">
+    	<label for="">W</label>
+      <input type="text" class="form-control W" value="4" placeholder="W">
+    </div>
+    <div class="col">
+    	<label for="">C</label>
+      <input type="text" class="form-control C" value="3" placeholder="C">
+    </div>
+    <div class="col">
+    	<label for="">U<sub>min</sub></label>
+      <input type="text" class="form-control U" value="0.7" placeholder="Umin">
+    </div>
+    
+  </div>
+</form>
+	<br>
+	<button type="button" style="border: 3px solid #deff31" class="btn btn-info cau_a">Câu a</button>
+	<button type="button" class="btn btn-danger">Câu b</button>
+	<button type="button" class="btn btn-primary">Câu c</button>
+
 {% endblock content %}
+
+
+{% block scripts %}
+
+	<script type="text/javascript">
+		$(function(){
+			$('.cau_a').click(function(){
+
+				$("svg").remove();
+				var C=  $('.C').val();
+				var R = $('.R').val();
+				var W = $('.W').val();
+				var node = $(".node").val();
+				var alpha = $(".alpha").val();
+				var Umin = $('.U').val();
+
+				//Width and height
+				var w = 1110;
+				var h = 660;
+				var padding = 40;
+				
+				//Dynamic, random dataset
+				var dataset = {
+					names: [
+					],
+					edges:[
+						{ source: 0, target: 1 },
+						{ source: 0, target: 2 },
+						{ source: 0, target: 3 },
+						{ source: 0, target: 4 },
+						{ source: 1, target: 5 },
+						{ source: 2, target: 5 },
+						{ source: 2, target: 5 },
+						{ source: 3, target: 4 },
+						{ source: 5, target: 8 },
+						{ source: 5, target: 9 },
+						{ source: 6, target: 7 },
+						{ source: 7, target: 8 },
+						{ source: 8, target: 9 }
+					],
+					weight:[
+					],
+					degres:[
+
+					]
+				};
+
+				// Khởi tạo giá trị WEIGHT
+				for (var i=0;i<node;i++){
+					dataset.weight[i] =1;
+				};
+				dataset.weight[4] = dataset.weight[59] = dataset.weight[69]=10;
+				dataset.weight[6] = dataset.weight[22] = dataset.weight[42]=15;
+				dataset.weight[51] = dataset.weight[77] = dataset.weight[64]=5;
+				dataset.weight[31] = dataset.weight[56] = dataset.weight[47]=3;
+
+
+				// Tìm trọng số chuẩn hóa
+				var cw = C*W;
+				var backbone = []
+
+				// TIM MAXCOST
+
+
+				// Xác định node truy cập của node backbone đã xác định
+
+
+				// Cập nhật lại danh sách backbone và node truy cập
+
+
+				// Xây dựng cây kết nối giữa các nút đường trục
+
+				// Thêm liên kết
+
+
+				var numDataPoints = node;					
+				var  MaxRange = 1000;	
+
+				for (var i = 0; i < numDataPoints; i++) {
+					var newNumber1 = Math.floor(Math.random() * MaxRange);
+					var newNumber2 = Math.floor(Math.random() * MaxRange);
+					dataset.degres.push([newNumber1, newNumber2]);
+					dataset.names.push({name:i});
+				}
+
+
+				//Create scale functions
+				var xScale = d3.scaleLinear()
+									 .domain([0, 1000])
+									 .range([padding, w - padding / 2]);
+				var yScale = d3.scaleLinear()
+									 .domain([0, 1000])
+									 .range([h - padding, padding / 2]);
+				//Define X axis
+				var xAxis = d3.axisBottom()
+								  .scale(xScale)
+								  .ticks(10);
+				//Define Y axis
+				var yAxis = d3.axisLeft()
+								  .scale(yScale)
+								  .ticks(10);
+				//Create SVG element
+				var svg = d3.select(".container")
+							.append("svg")
+							.attr("width", w)
+							.attr("height", h);
+
+				//Create circles
+				var allCircles = svg.selectAll("circle")
+				   .data(dataset.degres)
+				   .enter()
+				   .append("circle")
+				   .attr("cx", function(d) {
+				   		return xScale(d[0]);
+				   })
+				   .attr("cy", function(d) {
+				   		return yScale(d[1]);
+				   })
+				   .attr("r", 5)
+				   .attr('fill','#20c997');
+
+				svg.selectAll("text")
+				   .data(dataset.degres)
+				   .enter()
+				   .append("text")
+				   .text(function(d,i) {
+				   		return i+1;
+				   })
+				   .attr("x", function(d) {
+				   		return xScale(d[0]);
+				   })
+				   .attr("y", function(d) {
+				   		return yScale(d[1]);
+				   })
+				   .attr("font-family", "sans-serif")
+				   .attr("font-size", "11px")
+				   .attr("fill", "red");
+				
+				//Create X axis
+				svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(0," + (h - padding) + ")")
+					.call(xAxis);
+				
+				//Create Y axis
+				svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(" + padding + ",0)")
+					.call(yAxis);
+				//On radio button change, update styling
+				d3.selectAll("input")
+					.on("click", function() {
+						var threshold = +d3.select(this).node().value;
+						
+						allCircles.attr("fill", "black")
+							.filter(function(d) {
+								return d[0] <= threshold;
+							})
+							.attr("fill", "red");
+					});
+
+
+
+
+
+			});
+		});
+	</script>
+{% endblock scripts %}
