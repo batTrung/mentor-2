@@ -127,6 +127,7 @@
 					dataset.nodes.push({name:i+1,backbone:false,weight:0,degre:[newNumber1, newNumber2]});
 					dataIn[i] = false;
 				}
+
 				// Xac dinh nut Backbone ban dau
 				for (var i = 0; i<dataset.nodes.length;i++){
 					if (dataset.weight[i] > cw){
@@ -150,7 +151,7 @@
 					}
 				}
 
-				// Ham tao Danh sach Marit cua cac Node
+				// Ham tao danh sach Marit cua cac Node
 				var getmarit= function(){
 					// Tim Center of Gravity - CG
 					var Xcg  = 0, Ycg = 0, maxWeight =0, maxDistance =0, distanceList = [], maritList =[];
@@ -162,8 +163,8 @@
 							totalYWeight += dataset.nodes[i].degre[1]*dataset.weight[i];
 						}
 					}
-					Xcg=  totalXWeight/totalWeight;
-					Ycg=  totalYWeight/totalWeight;
+					Xcg =  totalXWeight/totalWeight;
+					Ycg =  totalYWeight/totalWeight;
 
 					// Max Weight 
 					for (var i=0;i<dataset.weight.length;i++){
@@ -178,6 +179,11 @@
 							var ei_y = dataset.nodes[i].degre[1];
 							var distance = Math.pow(ei_x-Xcg,2)+Math.pow(ei_y-Ycg,2);
 							var dis = Math.sqrt(distance);
+							if (dis == 0){
+								backbone.push(i);
+								dataset.nodes[i].backbone=true;
+								dataIn[i]=true;
+							}
 							distanceList.push(dis);
 						} else {
 							distanceList.push(0);
@@ -185,18 +191,20 @@
 					}
 					// Max Distance
 					maxDistance =  Math.max(...distanceList)
-
-
-					for (var i=0;i <dataset.nodes.length;i++){
-						if (dataIn[i]==false){
-							var marit = 0.5*(maxDistance-distanceList[i])/maxDistance+0.5*dataset.weight[i]/maxWeight;
-							maritList.push(marit);
-						} else {
-							maritList.push(0);
+					if (maxDistance==0){
+						return 0 ;
+					} else{
+						for (var i=0;i <dataset.nodes.length;i++){
+							if (dataIn[i]==false){
+								var marit = 0.5*(maxDistance-distanceList[i])/maxDistance+0.5*dataset.weight[i]/maxWeight;
+								maritList.push(marit);
+							} else {
+								maritList.push(0);
+							}
 						}
-					}
 
-					return maritList;
+						return maritList;
+					}
 				}
 
 				var checkNode = function(){
@@ -207,9 +215,8 @@
 					}
 					return true;
 				};
-				// Ham Main Chuong trinh
-				var main = function(){
-					// Tim Nut Truy Nhap
+
+				var findNode = function(){
 					for (var i = 0; i < backbone.length; i++){
 						var ei_x = dataset.nodes[backbone[i]].degre[0];
 							var ei_y = dataset.nodes[backbone[i]].degre[1];
@@ -221,19 +228,37 @@
 
 								if ((MAXCOST*R > dis) && (backbone.indexOf(j)<0) && dataIn[j] == false){
 									dataset.links.push({source: backbone[i], target:j});
-									dataIn[j]=true;					
-									dataIn[backbone[i]]=true;		
+									dataIn[j]=true;	
+									dataIn[backbone[i]]=true;
+
 								}
 							}
 					};
+				}
+				// Ham Main Chuong trinh
+				var main = function(){
+					// Tim Nut Truy Nhap
+					findNode();
 
 					// Thuc hien lai CG - MARIT
 					var maritList = getmarit();
-					var maxMarit = -1;
-					var mo = maritList.length;
-					maxMarit = Math.max(...maritList);
-					backbone.push(maritList.indexOf(maxMarit));
-					console.log(backbone)
+					var maxMarit = 0;
+
+					if (maritList == 0){
+						return ; 
+					} else {
+						maxMarit = Math.max(...maritList);
+						if (maxMarit==0){
+							return ;
+						} else {
+							index_new_backbone = maritList.indexOf(maxMarit);
+							backbone.push(index_new_backbone);
+							dataset.nodes[index_new_backbone].backbone=true;
+							dataIn[index_new_backbone]=true;
+							main();
+						}
+					}
+
 					// Tao nut backbone moi
 					/*var newBackbone = maritList.indexOf(Math.max(...maritList));*/
 
