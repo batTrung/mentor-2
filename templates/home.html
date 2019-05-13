@@ -267,6 +267,30 @@
 				// goi Ham
 				main(); // Khi các DataIn đã True hết (có thể ngoại trừ nút backbone)
 
+				// ********* Xac dinh NODE ROOOT *******
+
+				// Tinh moment cua cac node backbone
+				var cost = function(a,b){
+					var co = 0;
+					var xa = 0,xb=0,ya=0, yb=0;
+					xa = dataset.nodes[backbone[a]].degre[0];
+					ya = dataset.nodes[backbone[a]].degre[1];
+					xb = dataset.nodes[backbone[b]].degre[0];
+					yb = dataset.nodes[backbone[b]].degre[1];
+					var distance = Math.pow(xa-xb,2)+Math.pow(ya-yb,2);
+					var co = Math.sqrt(distance);
+					return co;
+				}
+				var moments = []
+				for (var i=0; i < backbone.length; i++){
+					var mo = 0;
+					for (var j =0; j < backbone.length;j++){
+						mo += cost(i,j)*dataset.weight[backbone[j]];
+					}
+					moments.push(mo);
+				}
+				var maxMoment = Math.max(...moments);
+				var indexBackboneMaxMoment = moments.indexOf(maxMoment);
 
 				// *********** VE DO THI *************** //
 
@@ -331,6 +355,11 @@
 					.style("fill",function(d,i){
 						if (d.backbone){
 							return '#ffc107'
+							if (backbone[indexBackboneMaxMoment]== i){
+								return 'rgb(0, 0, 0)'
+							} else{
+								return '#ffc107'
+							}
 						} else{
 							return getColor(i);
 						}
@@ -342,8 +371,13 @@
 					.data(dataset.nodes)
 					.enter()
 					.append("text")
-					.text(function(d) {
-						return d.name;
+					.text(function(d,i) {
+						if (backbone[indexBackboneMaxMoment]== i){
+							return d.name+' ROOT';
+						} else {
+							return d.name;
+						}
+						
 					})
 					.attr("x", function(d) {
 						return 1.05*d.degre[0]+padding+4;
