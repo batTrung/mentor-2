@@ -100,6 +100,7 @@
 					nodes: [
 
 					],
+
 					links:[
 
 					],
@@ -107,7 +108,10 @@
 					]
 				};
 
+				var dataIn=[]
+
 				// Khởi tạo giá trị WEIGHT
+
 				for (var i=0;i<node;i++){
 					dataset.weight[i] =1;
 				};
@@ -120,9 +124,10 @@
 				for (var i = 0; i < node; i++) {
 					var newNumber1 = Math.floor(Math.random() * MaxRange);
 					var newNumber2 = Math.floor(Math.random() * MaxRange);
-					dataset.nodes.push({name:i+1,group:i+1,backbone:false,weight:0,degre:[newNumber1, newNumber2]});
+					dataset.nodes.push({name:i+1,backbone:false,weight:0,degre:[newNumber1, newNumber2]});
+					dataIn[i] = false;
 				}
-				// Xac dinh nut Backbone
+				// Xac dinh nut Backbone ban dau
 				for (var i = 0; i<dataset.nodes.length;i++){
 					if (dataset.weight[i] > cw){
 						dataset.nodes[i].backbone = true;
@@ -145,82 +150,106 @@
 					}
 				}
 
-				// Tim Nut Truy Nhap
+				// Ham tao Danh sach Marit cua cac Node
+				var getmarit= function(){
+					// Tim Center of Gravity - CG
+					var Xcg  = 0, Ycg = 0, maxWeight =0, maxDistance =0, distanceList = [], maritList =[];
+					var totalWeight = 0, totalXWeight = 0, totalYWeight = 0;
+					for (var i=0; i<dataset.nodes.length; i++){
+						if (dataIn[i]==false){
+							totalWeight += dataset.weight[i];
+							totalXWeight += dataset.nodes[i].degre[0]*dataset.weight[i];
+							totalYWeight += dataset.nodes[i].degre[1]*dataset.weight[i];
+						}
+					}
+					Xcg=  totalXWeight/totalWeight;
+					Ycg=  totalYWeight/totalWeight;
 
-				for (var i = 0;i <backbone.length;i++){
-					var ei_x = dataset.nodes[backbone[i]].degre[0];
-					var ei_y = dataset.nodes[backbone[i]].degre[1];
-					for (var j = 0; j < dataset.nodes.length; j++){
-						var ej_x = dataset.nodes[j].degre[0];
-						var ej_y = dataset.nodes[j].degre[1];
-						var distance = Math.pow(ei_x-ej_x,2)+Math.pow(ei_y-ej_y,2);
-						var dis = Math.sqrt(distance);
+					// Max Weight 
+					for (var i=0;i<dataset.weight.length;i++){
+						if (dataIn[i] == false){
+							maxWeight = Math.max(maxWeight, dataset.weight[i]);
+						}
+					}
+					// Distance
+					for (var i = 0 ; i<dataset.nodes.length;i++){
+						if (dataIn[i]==false){
+							var ei_x = dataset.nodes[i].degre[0];
+							var ei_y = dataset.nodes[i].degre[1];
+							var distance = Math.pow(ei_x-Xcg,2)+Math.pow(ei_y-Ycg,2);
+							var dis = Math.sqrt(distance);
+							distanceList.push(dis);
+						} else {
+							distanceList.push(0);
+						}
+					}
+					maxDistance =  Math.max(...distanceList)
 
-						if ((MAXCOST*R > dis) && (backbone.indexOf(j)<0)){
-							dataset.links.push({source: backbone[i], target:j})							
+					for (var i=0;i <dataset.nodes.length;i++){
+						if (dataIn[i]==false){
+							var marit = 0.5*(maxDistance-distanceList[i])/maxDistance+0.5*dataset.weight[i]/maxWeight;
+							maritList.push(marit);
+						} else {
+							maritList.push(0);
+						}
+					}
+					return maritList;
+				}
+
+				var checkNode = function(){
+					for (var i=0;i < dataIn.length;i++){
+						if (dataIn[i] == false){
+							return false;
+						}
+					}
+					return true;
+				};
+				// Ham Main Chuong trinh
+				var main = function(){
+					// Tim Nut Truy Nhap
+					for (var i = 0; i < backbone.length; i++){
+						var ei_x = dataset.nodes[backbone[i]].degre[0];
+							var ei_y = dataset.nodes[backbone[i]].degre[1];
+							for (var j = 0; j < dataset.nodes.length; j++){
+								var ej_x = dataset.nodes[j].degre[0];
+								var ej_y = dataset.nodes[j].degre[1];
+								var distance = Math.pow(ei_x-ej_x,2)+Math.pow(ei_y-ej_y,2);
+								var dis = Math.sqrt(distance);
+
+								if ((MAXCOST*R > dis) && (backbone.indexOf(j)<0) && dataIn[j] == false){
+									dataset.links.push({source: backbone[i], target:j});
+									dataIn[j]=true;					
+									dataIn[backbone[i]]=true;		
+								}
+							}
+					};
+
+					// Thuc hien lai CG - MARIT
+					var maritList = getmarit();
+
+					// Tao nut backbone moi
+					/*var newBackbone = maritList.indexOf(Math.max(...maritList));*/
+
+				}
+
+				// goi Ham
+				main(); // Khi các DataIn đã True hết (có thể ngoại trừ nút backbone)
+
+
+				// *********** VE DO THI *************** //
+
+				// GET COLOR
+				var getColor = function(index){
+					for (var x=0; x < dataset.links.length; x++){
+
+						if (index == dataset.links[x].target.name-1){
+							return colors(dataset.links[x].source.name);
 						}
 					}
 
-				};
-				// xoa nut trung
-				var getListTarget = function(array){
-					var listTarget = [];
-
-					for (var i =0; i < array.length;i++){
-						listTarget.push(array[i].target);
-					}
-					return listTarget;
+					return 'rgb(120, 207, 23)';
 				}
 
-				var countList = []
-				var listData = getListTarget(dataset.links)
-				for (var i=0;i < listData.length;i++){
-				  countList.push(listData.filter(x => x === listData[i]).length);
-				}
-
-				for (var i=0; i< countList.length;i++){
-				  if (countList[i] > 1){
-				    delete dataset.links[i]
-				  }
-				}
-
-				var data=[]
-				for (var i=0;i<dataset.links.length;i++){
-				  if (dataset.links[i] != null){
-				    data.push(dataset.links[i]);
-				  }
-				}
-				dataset.links = data;
-				
-		
-				// Tim Center of Gravity - CG
-				var Xcg  = 0, Ycg = 0, maxWeight =0, maxDistance =0, distanceList = [], maritList =[];
-				var totalWeight = 0, totalXWeight = 0, totalYWeight = 0;
-				for (var i=0; i<dataset.nodes.length; i++){
-					totalWeight += dataset.weight[i];
-					totalXWeight += dataset.nodes[i].degre[0]*dataset.weight[i];
-					totalYWeight += dataset.nodes[i].degre[1]*dataset.weight[i];
-				}
-				Xcg=  totalXWeight/totalWeight;
-				Ycg=  totalYWeight/totalWeight;
-				maxWeight = Math.max(...dataset.weight)
-
-				for (var i = 0 ; i<dataset.nodes.length;i++){
-					var ei_x = dataset.nodes[i].degre[0];
-					var ei_y = dataset.nodes[i].degre[1];
-					var distance = Math.pow(ei_x-Xcg,2)+Math.pow(ei_y-Ycg,2);
-					var dis = Math.sqrt(distance);
-					distanceList.push(dis);
-				}
-				maxDistance =  Math.max(...distanceList)
-
-				for (var i=0;i <dataset.nodes.length;i++){
-					var marit = 0.5*(maxDistance-distanceList[i])/maxDistance+0.5*dataset.weight[i]/maxWeight;
-					maritList.push(marit);
-				}
-
-
-				//Create scale functions
 				var xScale = d3.scaleLinear()
 									 .domain([0, 1000])
 									 .range([padding, w - padding / 2]);
@@ -265,11 +294,11 @@
 					.enter()
 					.append("circle")
 					.attr("r", 9)
-					.style("fill",function(d){
+					.style("fill",function(d,i){
 						if (d.backbone){
 							return '#ffc107'
 						} else{
-							return "rgb(127, 228, 100)"
+							return getColor(i);
 						}
 
 					})
@@ -322,6 +351,7 @@
 					.attr("transform", "translate(" + padding + ",0)")
 					.call(yAxis);
 
+				// KET THUC VE DO THI
 
 			});
 		});
