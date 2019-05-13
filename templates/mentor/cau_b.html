@@ -22,7 +22,6 @@
 {% block content %}
 	<br>
 	<h1>Sử dụng <span style="color:#1e85d6">MENTOR II</span> </h1>
-	<br>
 	<form>
   <div class="form-row">
     <div class="col">
@@ -300,9 +299,59 @@
 				
 				// *************** Thuat toan Prim  - Dijkstra ******************
 
+				// Algorithms Prim-Dijkstra
+				function solve(graph, s) {
+				  var solutions = {};
+				  solutions[s] = [];
+				  solutions[s].dist = 0;
+
+				  while(true) {
+				    var parent = null;
+				    var nearest = null;
+				    var dist = Infinity;
+				    
+				    //for each existing solution
+				    for(var n in solutions) {
+				      if(!solutions[n])
+				        continue
+				      var ndist = solutions[n].dist;
+				      var adj = graph[n];
+				      //for each of its adjacent nodes...
+				      for(var a in adj) {
+				       
+				        //without a solution already...
+				        if(solutions[a])
+				          continue;
+				        //choose nearest node with lowest *total* cost
+				        var d = adj[a] + ndist;
+				        if(d < dist) {
+				          //reference parent
+				          parent = solutions[n];
+				          nearest = a;
+				          dist = d;
+				        }
+				      }
+				      
+				    }
+				    
+				    //no more solutions
+				    if(dist === Infinity) {
+				        break;
+				    }
+				    
+				    //extend parent's solution path
+				    solutions[nearest] = parent.concat(nearest);
+
+				    //extend parent's cost
+				    solutions[nearest].dist = dist;
+				  }
+
+				  return solutions;
+				}
+
 				// Tinh toan COST of Backbone
 				var root = backbone[indexBackboneMaxMoment];
-				var costs = []
+				var costs = {}
 				var hasLink = function(a,b){
 					for (var i=0; i<costs.length; i++){
 						if ((costs[i].source == a) && (costs[i].target == b)){
@@ -317,16 +366,24 @@
 				for (var i=0; i < backbone.length; i++){
 					for (var j=0; j < backbone.length ; j++){
 						if (i!=j){
-							dataset.links.push({source: backbone[i], target: backbone[j]});
-							if (!hasLink(i,j)){
-								costs.push({source:backbone[i],target:backbone[j],value:cost(i,j)});
+
+							if (!costs[i]){
+								costs[i]= {}
 							}
+							costs[i][j] = cost(i,j);
 						}
 					}
 				}
-				console.log(costs);
 
-				// Algorithms Prim-Dijkstra
+				var start = indexBackboneMaxMoment;
+				var solutions = solve(costs, start);
+				for (var so in solutions){
+					solutions[so].unshift(start)
+					for (var i =0;i<solutions[so].length-1;i++){
+						dataset.links.push({source: backbone[solutions[so][i]], target: backbone[solutions[so][i+1]]});
+					}
+				}
+								
 
 				// Apply Vao Dataset Links
 
@@ -383,7 +440,7 @@
 								.append("line")
 								.style("stroke", function(d,i){
 									if (backbone.indexOf(d.target.name-1) != -1){
-										return 'rgb(255, 11, 11)';
+										return 'rgb(90, 239, 255)';
 									} else {
 										return '#ccc';
 									}
@@ -400,9 +457,9 @@
 					.attr("r", 9)
 					.style("fill",function(d,i){
 						if (d.backbone){
-							return '#ffc107'
+							
 							if (backbone[indexBackboneMaxMoment]== i){
-								return 'rgb(0, 0, 0)'
+								return 'rgb(64, 60, 60)'
 							} else{
 								return '#ffc107'
 							}
