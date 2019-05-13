@@ -23,7 +23,7 @@
 	<br>
 	<h1>Sử dụng <span style="color:#1e85d6">MENTOR II</span> </h1>
 	<br>
-	<form style="display:none">
+	<form>
   <div class="form-row">
     <div class="col">
     	<label for="">X</label>
@@ -65,9 +65,8 @@
   </div>
 </form>
 	<br>
-	<button type="button" style="border: 3px solid #deff31" class="btn btn-info cau_a">Câu a</button>
-	<button type="button" class="btn btn-danger">Câu b</button>
-	<button type="button" class="btn btn-primary">Câu c</button>
+	<button type="button" style="border: 3px solid #deff31" class="btn btn-info cau_a">Random Node</button>
+
 
 {% endblock content %}
 
@@ -267,6 +266,13 @@
 				// goi Ham
 				main(); // Khi các DataIn đã True hết (có thể ngoại trừ nút backbone)
 
+				// Line for backbone
+				for (var i =0; i < backbone.length;i++){
+					for (var j=0; j<backbone.length;j++){
+
+					}
+				}
+
 				// ********* Xac dinh NODE ROOOT *******
 
 				// Tinh moment cua cac node backbone
@@ -291,6 +297,39 @@
 				}
 				var maxMoment = Math.min(...moments);
 				var indexBackboneMaxMoment = moments.indexOf(maxMoment);
+				
+				// *************** Thuat toan Prim  - Dijkstra ******************
+
+				// Tinh toan COST of Backbone
+				var root = backbone[indexBackboneMaxMoment];
+				var costs = []
+				var hasLink = function(a,b){
+					for (var i=0; i<costs.length; i++){
+						if ((costs[i].source == a) && (costs[i].target == b)){
+							return true;
+						} else if ((costs[i].source == b) && (costs[i].target == a)){
+							return true;
+						}
+					}
+					return false;
+				}
+				// Add Line of Backbone + tinh costs
+				for (var i=0; i < backbone.length; i++){
+					for (var j=0; j < backbone.length ; j++){
+						if (i!=j){
+							dataset.links.push({source: backbone[i], target: backbone[j]});
+							if (!hasLink(i,j)){
+								costs.push({source:backbone[i],target:backbone[j],value:cost(i,j)});
+							}
+						}
+					}
+				}
+				console.log(costs);
+
+				// Algorithms Prim-Dijkstra
+
+				// Apply Vao Dataset Links
+
 
 				// *********** VE DO THI *************** //
 
@@ -342,9 +381,16 @@
 								.data(dataset.links)
 								.enter()
 								.append("line")
-								.style("stroke", "#ccc")
-								.style("stroke-width", 1);
-
+								.style("stroke", function(d,i){
+									if (backbone.indexOf(d.target.name-1) != -1){
+										return 'rgb(255, 11, 11)';
+									} else {
+										return '#ccc';
+									}
+								})
+								.style("stroke-width", function(d,i){
+									return 1;
+								});
 
 				//Create nodes as circles
 				var nodes = svg.selectAll("circle")
@@ -389,6 +435,24 @@
 					.attr("font-size", "11px")
 					.attr("fill", "red");
 
+
+				var text = svg.selectAll("text")
+								.data(dataset.links)
+								.enter()
+								.append("text")
+								.text(function(d,i){
+									return "text"
+								})
+								.attr("x", function(d) {
+									return ((1.05*d.source.degre[0]+padding)+(1.05*d.target.degre[0]+padding))/2;
+								})
+								.attr("y", function(d){
+									return ((620-0.6*d.source.degre[1])+(620-0.6*d.target.degre[1]))/2;
+								})
+								.attr("font-family", "sans-serif")
+								.attr("font-size", "11px")
+
+
 				//Add a simple tooltip
 				nodes.append("title")
 					 .text(function(d) {
@@ -400,7 +464,7 @@
 					links.attr("x1", function(d) { return 1.05*d.source.degre[0]+padding; })
 				        .attr("y1", function(d) { return 620-0.6*d.source.degre[1]; })
 				        .attr("x2", function(d) { return 1.05*d.target.degre[0]+padding; })
-				        .attr("y2", function(d) { return 620-0.6*d.target.degre[1]; });
+				        .attr("y2", function(d) { return 620-0.6*d.target.degre[1]; })
 
 					nodes.attr("cx", function(d) { return 1.05*d.degre[0]+padding })
 						 .attr("cy", function(d) { return 620-0.6*d.degre[1] });

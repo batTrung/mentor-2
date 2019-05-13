@@ -66,7 +66,6 @@
 </form>
 	<br>
 	<button type="button" style="border: 3px solid #deff31" class="btn btn-info random">Random Node</button>
-	<button type="button" class="btn btn-danger prim">Prim – Dijkstra</button>
 
 {% endblock content %}
 
@@ -74,8 +73,21 @@
 
 	<script type="text/javascript">
 		$(function(){
-			$('.random').click(function(){
+			//Dynamic, random dataset
+			var dataset = {
+				nodes: [
+				],
 
+				links:[
+				],
+				weight:[
+				]
+			};
+			var dataIn=[];
+			var backbone=[];
+
+			$('.random').click(function(){
+				// Khởi tạo giá trị WEIGHT
 				$("svg").remove();
 				var MaxRange = Math.random() * 1000;
 				var C=  $('.C').val();
@@ -85,16 +97,17 @@
 				var alpha = $(".alpha").val();
 				var Umin = $('.U').val();
 
-				var cw = C*W;
-				var backbone = []				
+				var cw = C*W;				
 
 				//Width and height
 				var w = 1110;
 				var h = 660;
 				var padding = 40;
 
-				//Dynamic, random dataset
-				var dataset = {
+				backbone = []
+				dataIn=[]
+
+				dataset = {
 					nodes: [
 					],
 
@@ -103,10 +116,6 @@
 					weight:[
 					]
 				};
-
-				var dataIn=[]
-
-				// Khởi tạo giá trị WEIGHT
 
 				for (var i=0;i<node;i++){
 					dataset.weight[i] =1;
@@ -418,6 +427,7 @@
 				// KET THUC VE DO THI
 
 			});
+
 		});
 	</script>
 {% endblock scripts %}
