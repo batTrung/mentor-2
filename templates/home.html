@@ -183,7 +183,9 @@
 							distanceList.push(0);
 						}
 					}
+					// Max Distance
 					maxDistance =  Math.max(...distanceList)
+
 
 					for (var i=0;i <dataset.nodes.length;i++){
 						if (dataIn[i]==false){
@@ -193,6 +195,7 @@
 							maritList.push(0);
 						}
 					}
+
 					return maritList;
 				}
 
@@ -226,7 +229,11 @@
 
 					// Thuc hien lai CG - MARIT
 					var maritList = getmarit();
-
+					var maxMarit = -1;
+					var mo = maritList.length;
+					maxMarit = Math.max(...maritList);
+					backbone.push(maritList.indexOf(maxMarit));
+					console.log(backbone)
 					// Tao nut backbone moi
 					/*var newBackbone = maritList.indexOf(Math.max(...maritList));*/
 
@@ -241,7 +248,9 @@
 				// GET COLOR
 				var getColor = function(index){
 					for (var x=0; x < dataset.links.length; x++){
-
+						if (backbone.indexOf(index) != -1){
+							return 'rgb(120, 207, 23)';
+						}
 						if (index == dataset.links[x].target.name-1){
 							return colors(dataset.links[x].source.name);
 						}
