@@ -986,7 +986,7 @@ $(function(){
 					.append("text")
 					.text(function(d,i){
 						if (checkBackbone(d.target.name-1)){
-							return cost(backbone.indexOf(d.source.name-1), backbone.indexOf(d.target.name-1));
+							return cost(backbone.indexOf(d.source.name-1), backbone.indexOf(d.target.name-1)).toFixed(2);
 						}
 						return ""
 					})
