@@ -1,0 +1,5 @@
+$(function(){
+	$(".addlink").click(function(){
+		
+	})
+});	

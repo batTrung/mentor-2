@@ -1,5 +1,18 @@
 $(function(){
-			$('.cau_a').click(function(){
+			var backbone = []
+			var dataset = {
+					nodes: [
+
+					],
+
+					links:[
+
+					],
+					weight:[
+					]
+				};
+
+			$('.prim').click(function(){
 
 				$("svg").remove();
 				var MaxRange = Math.random() * 1000;
@@ -11,7 +24,7 @@ $(function(){
 				var Umin = $('.U').val();
 
 				var cw = C*W;
-				var backbone = []				
+				backbone = []				
 
 				//Width and height
 				var w = 1110;
@@ -19,7 +32,7 @@ $(function(){
 				var padding = 40;
 
 				//Dynamic, random dataset
-				var dataset = {
+				dataset = {
 					nodes: [
 
 					],
@@ -190,12 +203,6 @@ $(function(){
 				// goi Ham
 				main(); // Khi các DataIn đã True hết (có thể ngoại trừ nút backbone)
 
-				// Line for backbone
-				for (var i =0; i < backbone.length;i++){
-					for (var j=0; j<backbone.length;j++){
-
-					}
-				}
 
 				// ********* Xac dinh NODE ROOOT *******
 
@@ -248,7 +255,7 @@ $(function(){
 				        if(solutions[a])
 				          continue;
 				        //choose nearest node with lowest *total* cost
-				        var d = adj[a] + ndist;
+				        var d = adj[a] + alpha*ndist;
 				        if(d < dist) {
 				          //reference parent
 				          parent = solutions[n];
@@ -287,11 +294,11 @@ $(function(){
 					}
 					return false;
 				}
+
 				// Add Line of Backbone + tinh costs
 				for (var i=0; i < backbone.length; i++){
 					for (var j=0; j < backbone.length ; j++){
 						if (i!=j){
-
 							if (!costs[i]){
 								costs[i]= {}
 							}
@@ -308,13 +315,18 @@ $(function(){
 						dataset.links.push({source: backbone[solutions[so][i]], target: backbone[solutions[so][i+1]]});
 					}
 				}
-								
 
-				// Apply Vao Dataset Links
+				// *********** VE DO THI *************** 
 
-
-				// *********** VE DO THI *************** //
-
+				// Check Link
+				var checkBackbone = function(a){
+					for (var i =0;i < backbone.length; i++){
+						if (backbone[i] == a){
+							return true;
+						}
+					}
+					return false;
+				}
 				// GET COLOR
 				var getColor = function(index){
 					for (var x=0; x < dataset.links.length; x++){
@@ -374,6 +386,8 @@ $(function(){
 									return 1;
 								});
 
+
+
 				//Create nodes as circles
 				var nodes = svg.selectAll("circle")
 					.data(dataset.nodes)
@@ -395,7 +409,26 @@ $(function(){
 					})
 					.call(d3.drag);
 
-				d3.select(".container").select("svg").selectAll("text")
+				var text = svg.selectAll("text")
+					.data(dataset.links)
+					.enter()
+					.append("text")
+					.text(function(d,i){
+						if (checkBackbone(d.target.name-1)){
+							return cost(backbone.indexOf(d.source.name-1), backbone.indexOf(d.target.name-1));
+						}
+						return ""
+					})
+					.attr("x", function(d) {
+						return ((1.05*d.source.degre[0]+padding)+(1.05*d.target.degre[0]+padding))/2;
+					})
+					.attr("y", function(d){
+						return ((620-0.6*d.source.degre[1])+(620-0.6*d.target.degre[1]))/2;
+					})
+					.attr("font-family", "sans-serif")
+					.attr("font-size", "11px")
+
+				d3.select(".container").select("svg").selectAll("g")
 					.data(dataset.nodes)
 					.enter()
 					.append("text")
@@ -416,23 +449,6 @@ $(function(){
 					.attr("font-family", "sans-serif")
 					.attr("font-size", "11px")
 					.attr("fill", "red");
-
-
-				var text = svg.selectAll("text")
-								.data(dataset.links)
-								.enter()
-								.append("text")
-								.text(function(d,i){
-									return "text"
-								})
-								.attr("x", function(d) {
-									return ((1.05*d.source.degre[0]+padding)+(1.05*d.target.degre[0]+padding))/2;
-								})
-								.attr("y", function(d){
-									return ((620-0.6*d.source.degre[1])+(620-0.6*d.target.degre[1]))/2;
-								})
-								.attr("font-family", "sans-serif")
-								.attr("font-size", "11px")
 
 
 				//Add a simple tooltip
@@ -468,4 +484,9 @@ $(function(){
 				// KET THUC VE DO THI
 
 			});
+
+			$(".addlink").click(function(){
+					console.log(backbone);
+				})
+
 		});

@@ -64,13 +64,14 @@
 	  </div>
 	</form>
 	<br>
-	<button type="button" style="border: 3px solid #deff31" class="btn btn-info cau_a">Random Node</button>
+
+	<button type="button" class="btn btn-info prim">Prim - Dijkstra</button>
+	<button type="button" class="btn btn-danger addlink">Mentor II</button>
 
 
 {% endblock content %}
 
-
 {% block scripts %}
-	
 	<script type="text/javascript" src="{% static "js/prim_dijkstra.js" %}"></script>
-{% endblock scripts %}MAXCOST
+	<script type="text/javascript" src="{% static "js/addlink.js" %}"></script>
+{% endblock scripts %}
