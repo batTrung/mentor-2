@@ -1,78 +1,100 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block stylesheet %}
-	<style type="text/css">
-			circle {
-			  stroke: #fff;
-			  stroke-width: 2px;
-			}
-			p {
-				font-family: Helvetica, sans-serif;
-				font-size: 12px;
-			}
-			input[type=radio] {
-				margin-left: 40px;
-			}
-		</style>
+  <style type="text/css">
+      circle {
+        stroke: #fff;
+        stroke-width: 2px;
+      }
+      p {
+        font-family: Helvetica, sans-serif;
+        font-size: 12px;
+      }
+      input[type=radio] {
+        margin-left: 40px;
+      }
+    </style>
 {% endblock stylesheet %}
 {% block title %}
-	Câu c
+  Câu c
 {% endblock title %}
 
 {% block content %}
-	<br>
-	<h1>Mô phỏng thuật toán <span style="color:#1e85d6">MENTOR II</span> </h1>
-	<br>
-	<form>
-  <div class="form-row">
-    <div class="col">
-    	<label for="">X</label>
-      <input type="text" class="form-control X" value="X=1000" disabled placeholder="X">
-    </div>
-    <div class="col">
-    	<label for="">Số nút</label>
-     	 <input type="text" class="form-control node" value="80" placeholder="Số nút">
-    </div>
-    <div class="col">
-    	<label for="">R</label>
-      <input type="text" class="form-control R" value="0.3" placeholder="R">
-    </div>
-    <div class="col">
-    	<label for="">&alpha;</label>
-      <input type="text" class="form-control alpha" value="0.7" placeholder="&alpha;">
-    </div>
-
-  </div>
   <br>
-  <div class="form-row">
-    <div class="col">
-    	<label for="">Y</label>
-      <input type="text" class="form-control Y" value="Y=1000" disabled placeholder="Y">
-    </div>
-    <div class="col">
-    	<label for="">W</label>
-      <input type="text" class="form-control W" value="4" placeholder="W">
-    </div>
-    <div class="col">
-    	<label for="">C</label>
-      <input type="text" class="form-control C" value="3" placeholder="C">
-    </div>
-    <div class="col">
-    	<label for="">U<sub>min</sub></label>
-      <input type="text" class="form-control U" value="0.7" placeholder="Umin">
-    </div>
-    
-  </div>
-</form>
-	<br>
-	<button type="button" class="btn btn-info cau_a">Random Node</button>
-	<button type="button" class="btn btn-danger"></button>
-	<button type="button" class="btn btn-primary">Câu c</button>
+  <h1>Sử dụng <span style="color:#1e85d6">MENTOR II</span> </h1>
+  <form style="display:none">
+    <div class="form-row">
+      <div class="col">
+        <label for="">X</label>
+        <input type="text" class="form-control X" value="X=1000" disabled placeholder="X">
+      </div>
+      <div class="col">
+        <label for="">Số nút</label>
+         <input type="text" class="form-control node" value="80" placeholder="Số nút">
+      </div>
+      <div class="col">
+        <label for="">R</label>
+        <input type="text" class="form-control R" value="0.3" placeholder="R">
+      </div>
+      <div class="col">
+        <label for="">&alpha;</label>
+        <input type="text" class="form-control alpha" value="0.7" placeholder="&alpha;">
+      </div>
 
+    </div>
+    <br>
+    <div class="form-row">
+      <div class="col">
+        <label for="">Y</label>
+        <input type="text" class="form-control Y" value="Y=1000" disabled placeholder="Y">
+      </div>
+      <div class="col">
+        <label for="">W</label>
+        <input type="text" class="form-control W" value="4" placeholder="W">
+      </div>
+      <div class="col">
+        <label for="">C</label>
+        <input type="text" class="form-control C" value="3" placeholder="C">
+      </div>
+      <div class="col">
+        <label for="">U<sub>min</sub></label>
+        <input type="text" class="form-control U" value="0.7" placeholder="Umin">
+      </div>
+      
+    </div>
+  </form>
+  <br>
+
+  <button type="button" class="btn btn-info prim">Prim - Dijkstra</button>
+  <button type="button" class="btn btn-danger mentor2">Mentor II</button>
+  <button type="button" class="btn btn-warning cau_c">Xem sự thay đổi</button>
+  <!-- Show D3.js -->
+  <div class="show"></div>
+  
+
+  <!--  Table -->
+  <div class="table_value">
+    <h1>Bảng giá trị</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Node</th>
+          <th scope="col">Số đường</th>
+          <th scope="col">Độ sử dụng</th>
+          <th scope="col">U<sub>min</sub></th>
+          <th scope="col">Thêm liên kết</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+  </div>
+  <br><br>
 {% endblock content %}
 
-
 {% block scripts %}
-
-
+  <script src="{% static "js/cau_c.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/addlink.js" %}"></script>
 {% endblock scripts %}

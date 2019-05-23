@@ -22,7 +22,7 @@
 {% block content %}
 	<br>
 	<h1>Sử dụng <span style="color:#1e85d6">MENTOR II</span> </h1>
-	<form>
+	<form style="display:none">
 	  <div class="form-row">
 	    <div class="col">
 	    	<label for="">X</label>
@@ -66,12 +66,34 @@
 	<br>
 
 	<button type="button" class="btn btn-info prim">Prim - Dijkstra</button>
-	<button type="button" class="btn btn-danger addlink">Mentor II</button>
+	<button type="button" class="btn btn-danger mentor2">Mentor II</button>
+	<!-- Show D3.js -->
+	<div class="show"></div>
+	
 
+	<!--  Table -->
+	<div class="table_value">
+		<h1>Bảng giá trị</h1>
+		<table class="table">
+		  <thead>
+		    <tr>
+		      <th scope="col">#</th>
+		      <th scope="col">Node</th>
+		      <th scope="col">Số đường</th>
+		      <th scope="col">Độ sử dụng</th>
+		      <th scope="col">U<sub>min</sub></th>
+		      <th scope="col">Thêm liên kết</th>
+		    </tr>
+		  </thead>
+		  <tbody>
 
+		  </tbody>
+		</table>
+	</div>
+	<br><br>
 {% endblock content %}
 
 {% block scripts %}
-	<script type="text/javascript" src="{% static "js/prim_dijkstra.js" %}"></script>
+	<script src="{% static "js/cau_b.js" %}"></script>
 	<script type="text/javascript" src="{% static "js/addlink.js" %}"></script>
 {% endblock scripts %}
